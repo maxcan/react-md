@@ -340,12 +340,6 @@ export default class NavigationDrawer extends PureComponent {
     desktopMinWidth: PropTypes.number.isRequired,
 
     /**
-     * An optional DOM Node to render the portal into. The default is to render as
-     * the last child in the `body`.
-     */
-    renderNode: PropTypes.object,
-
-    /**
      * An optional function to call when the type of the drawer changes because of the
      * new media queries. The callback will include the newly selected drawer type
      * and an object containing the media matches of `mobile`, `tablet`, and `desktop`.
@@ -558,6 +552,24 @@ export default class NavigationDrawer extends PureComponent {
      */
     jumpLabel: PropTypes.string.isRequired,
 
+    /**
+     * An optional DOM Node to render the drawer into. The default is to render as
+     * the first child in the `body`.
+     *
+     * > This prop will not be used when the drawer is of the permanent type or `inline` is specified
+     * since the `Portal` component will not be used.
+     */
+    renderNode: PropTypes.object,
+
+    /**
+     * Boolean if the drawer should be rendered as the last child instead of the first child
+     * in the `renderNode` or `body`.
+     *
+     * > This prop will not be used when the drawer is of the permanent type or `inline` is specified
+     * since the `Portal` component will not be used.
+     */
+    lastChild: PropTypes.bool,
+
     menuIconChildren: deprecated(PropTypes.node, 'Use `temporaryIconChildren` instead'),
     menuIconClassName: deprecated(PropTypes.string, 'Use `temporaryIconClassName` instead'),
     closeIconChildren: deprecated(PropTypes.node, 'Use `persistentIconChildren` instead'),
@@ -572,6 +584,10 @@ export default class NavigationDrawer extends PureComponent {
     ),
   };
 
+  static contextTypes = {
+    renderNode: PropTypes.object,
+  };
+
   static childContextTypes = {
     closeIconClassName: PropTypes.string,
     closeChildren: PropTypes.node,
@@ -581,6 +597,7 @@ export default class NavigationDrawer extends PureComponent {
       PropTypes.string,
     ]).isRequired,
     label: PropTypes.string.isRequired,
+    renderNode: PropTypes.object,
   }
 
   static defaultProps = {
@@ -671,6 +688,7 @@ export default class NavigationDrawer extends PureComponent {
       closeChildren: closeIconChildren || persistentIconChildren,
       closeIconClassName: closeIconClassName || persistentIconClassName,
       onCloseClick: this._toggleVisibility,
+      renderNode: this.context.renderNode,
     };
   }
 
@@ -755,7 +773,6 @@ export default class NavigationDrawer extends PureComponent {
       contentComponent: Content,
       navItems,
       children,
-      renderNode,
       drawerTitle,
       drawerChildren,
       drawerHeaderChildren,
@@ -794,6 +811,7 @@ export default class NavigationDrawer extends PureComponent {
     delete props.persistentIconChildren;
     delete props.persistentIconClassName;
     delete props.jumpLabel;
+    delete props.renderNode;
 
     // Deprecated deletes
     delete props.onDrawerChange;
@@ -805,6 +823,7 @@ export default class NavigationDrawer extends PureComponent {
 
     const drawerType = getField(this.props, this.state, 'drawerType');
     const visible = getField(this.props, this.state, 'visible');
+    const renderNode = getField(this.props, this.context, 'renderNode');
     const mini = isMini(drawerType);
     const temporary = isTemporary(drawerType);
     const persistent = isPersistent(drawerType);

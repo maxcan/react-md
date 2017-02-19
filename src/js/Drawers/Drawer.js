@@ -190,9 +190,21 @@ export default class Drawer extends PureComponent {
 
     /**
      * An optional DOM Node to render the drawer into. The default is to render as
-     * the last child in the `body`.
+     * the first child in the `body`.
+     *
+     * > This prop will not be used when the drawer is of the permanent type or `inline` is specified
+     * since the `Portal` component will not be used.
      */
     renderNode: PropTypes.object,
+
+    /**
+     * Boolean if the drawer should be rendered as the last child instead of the first child
+     * in the `renderNode` or `body`.
+     *
+     * > This prop will not be used when the drawer is of the permanent type or `inline` is specified
+     * since the `Portal` component will not be used.
+     */
+    lastChild: PropTypes.bool,
 
     /**
      * Boolean if the drawer is visible by default. If this is omitted, the drawer will be visible
@@ -314,6 +326,10 @@ export default class Drawer extends PureComponent {
 
     return window.matchMedia(media).matches;
   }
+
+  static contextTypes = {
+    renderNode: PropTypes.object,
+  };
 
   constructor(props) {
     super(props);
@@ -514,12 +530,13 @@ export default class Drawer extends PureComponent {
       children,
       inline,
       position,
-      renderNode,
       overlay,
       autoclose,
       clickableDesktopOverlay,
+      lastChild,
       ...props
     } = this.props;
+    delete props.renderNode;
     delete props.visible;
     delete props.defaultVisible;
     delete props.type;
@@ -536,6 +553,7 @@ export default class Drawer extends PureComponent {
     delete props.closeOnNavItemClick;
 
     const { desktop } = this.state;
+    const renderNode = getField(this.props, this.context, 'renderNode');
     const visible = getField(this.props, this.state, 'visible');
     const type = getField(this.props, this.state, 'type');
     const mini = isMini(type);
@@ -619,7 +637,7 @@ export default class Drawer extends PureComponent {
     }
 
     return (
-      <Portal visible={mini || animating || visible} renderNode={renderNode}>
+      <Portal visible={mini || animating || visible} renderNode={renderNode} lastChild={lastChild}>
         {drawer}
       </Portal>
     );

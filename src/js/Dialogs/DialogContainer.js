@@ -7,6 +7,7 @@ import isRequiredForA11y from 'react-prop-types/lib/isRequiredForA11y';
 
 import { ESC } from '../constants/keyCodes';
 import TICK from '../constants/CSSTransitionGroupTick';
+import getField from '../utils/getField';
 import toggleScroll from '../utils/toggleScroll';
 import oneRequiredForA11y from '../utils/PropTypes/oneRequiredForA11y';
 import Dialog from './Dialog';
@@ -232,6 +233,12 @@ export default class DialogContainer extends PureComponent {
      */
     renderNode: PropTypes.object,
 
+    /**
+     * Boolean if the dialog should be rendered as the last child in the `renderNode` or `body` instead
+     * of as the first.
+     */
+    lastChild: PropTypes.bool,
+
     isOpen: deprecated(PropTypes.bool, 'Use `visible` instead'),
     transitionName: deprecated(PropTypes.string, 'The transition name will be managed by the component'),
     transitionEnter: deprecated(PropTypes.bool, 'The transition will always be enforced'),
@@ -248,6 +255,10 @@ export default class DialogContainer extends PureComponent {
     focusOnMount: true,
     transitionEnterTimeout: 300,
     transitionLeaveTimeout: 300,
+  };
+
+  static contextTypes = {
+    renderNode: PropTypes.object,
   };
 
   constructor(props) {
@@ -285,11 +296,14 @@ export default class DialogContainer extends PureComponent {
       return;
     }
 
-    const el = this.props.renderNode || window;
+    const el = getField(this.props, this.context, 'renderNode') || window;
     let { scrollX: pageX, scrollY: pageY } = el;
     if (typeof el.scrollTop !== 'undefined' && typeof el.scrollLeft !== 'undefined') {
-      pageX = el.scrollTop;
-      pageY = el.scrollLeft;
+      pageX = el.scrollLeft;
+      pageY = el.scrollTop;
+    } else if (typeof el.scrollY !== 'undefined' && typeof el.scrollX !== 'undefined') {
+      pageX = el.scrollX;
+      pageY = el.scrollY;
     }
 
     this._pageX = pageX;
@@ -410,9 +424,10 @@ export default class DialogContainer extends PureComponent {
       component,
       transitionEnterTimeout,
       transitionLeaveTimeout,
-      renderNode,
+      lastChild,
       ...props
     } = this.props;
+    delete props.renderNode;
     delete props.close;
     delete props.isOpen;
     delete props.visible;
@@ -424,6 +439,8 @@ export default class DialogContainer extends PureComponent {
     delete props.transitionEnter;
     delete props.transitionLeave;
     delete props.closeOnEsc;
+
+    const renderNode = getField(this.props, this.context, 'renderNode');
 
     const dialog = (
       <Dialog
@@ -440,7 +457,7 @@ export default class DialogContainer extends PureComponent {
     );
 
     return (
-      <Portal visible={portalVisible} renderNode={renderNode}>
+      <Portal visible={portalVisible} renderNode={renderNode} lastChild={lastChild}>
         <CSSTransitionGroup
           component={component}
           ref={this._setContainer}
