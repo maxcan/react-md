@@ -41,6 +41,7 @@ interface TextFieldProps extends Props {
   pattern?: string;
   min?: number;
   max?: number;
+  step?: number;
 }
 
 export default class TextField extends React.Component<TextFieldProps, {}> {
