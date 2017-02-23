@@ -21,7 +21,7 @@
     "ts-defs": "babel-node --presets=es2015,react --plugins=syntax-async-functions,transform-regenerator ./src/scripts/makeTSDefs.js",
     "css-bundles": "node ./src/scripts/makeBundles.js",
     "build:umd": "npm run css-bundles && webpack --progress --colors",
-    "prebuild": "rimraf lib && rimraf dist && rimraf src/scss/bundles && npm run lint",
+    "prebuild": "rimraf lib && rimraf dist && rimraf src/scss/bundles",
     "build": "npm run scripts && npm run build:umd"
   },
   "repository": {
