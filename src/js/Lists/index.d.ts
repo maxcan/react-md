@@ -41,7 +41,7 @@ interface ListItemControlProps extends Props {
   secondaryText?: React.ReactNode;
   threeLines?: boolean;
   primaryAction?: React.ReactElement<any>;
-  seconaryAction?: React.ReactElement<any>;
+  secondaryAction?: React.ReactElement<any>;
   leftIcon?: React.ReactNode;
   leftAvatar?: React.ReactNode;
   rightIcon?: React.ReactNode;
